@@ -1,8 +1,9 @@
 #include "AppClass.h"
+
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Alexander Toy - aft1891@rit.edu";
 	
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -63,15 +64,38 @@ void Application::Display(void)
 		The following offset will orient the orbits as in the demo, start without it to make your life easier.
 	*/
 	//m4Offset = glm::rotate(IDENTITY_M4, 90.0f, AXIS_Z);
+	//get time
+	static float fTimer = 0;	//store the new timer
+	static uint sideCount = 0;
+	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
+	fTimer += m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
+
+	if (fTimer > 1.0f)
+	{
+		fTimer -= 1.0f;
+		sideCount++;
+	}
 
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
 	{
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(m4Offset, 90.0f, AXIS_X));
 
+		// Generate the list of vertices
+		uint nSides = i + 3;
+		float deltaRads = 2 * PI / nSides;
+		float radius = 0.5f * nSides - 0.5f;
+		std::vector<vector3> pointList;
+		for (uint j = 0; j < nSides; j++) {
+			pointList.push_back(vector3(radius * cos(deltaRads * j), 0, radius * sin(deltaRads * j)));
+		}
+
 		//calculate the current position
-		vector3 v3CurrentPos = ZERO_V3;
-		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);
+		vector3 start = pointList[sideCount % pointList.size()];
+		vector3 end = pointList[(sideCount + 1) % pointList.size()];
+		vector3 v3CurrentPos = glm::lerp(start, end, fTimer);
+
+		matrix4 m4Model = glm::translate(glm::rotate(m4Offset, -90.0f, AXIS_X), v3CurrentPos);
 
 		//draw spheres
 		m_pMeshMngr->AddSphereToRenderList(m4Model * glm::scale(vector3(0.1)), C_WHITE);
