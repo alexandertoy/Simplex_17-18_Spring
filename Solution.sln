@@ -1,7 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
+<<<<<<< HEAD
 VisualStudioVersion = 15.0.26730.12
+=======
+VisualStudioVersion = 15.0.26430.14
+>>>>>>> 0afc8e4913a8d11101160471bd7c7a3db3eccd91
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Exercises", "Exercises", "{A7E7DB91-6013-4894-B0A8-C254F53E4940}"
 EndProject
@@ -98,8 +102,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "C10_MeshClass_S2", "C10_Mes
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E06 - LERP", "E06 - LERP\E06 - LERP.vcxproj", "{822E40D2-80A1-46EB-AD93-EC28C4F145ED}"
 EndProject
+<<<<<<< HEAD
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E08 - Gimbal Removal", "E08 - Gimbal Removal\E08 - Gimbal Removal.vcxproj", "{8A8E536E-E280-4B24-A5CD-37DB6CCFD18F}"
 EndProject
+=======
+>>>>>>> 0afc8e4913a8d11101160471bd7c7a3db3eccd91
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -270,10 +277,13 @@ Global
 		{822E40D2-80A1-46EB-AD93-EC28C4F145ED}.Debug|x86.Build.0 = Debug|Win32
 		{822E40D2-80A1-46EB-AD93-EC28C4F145ED}.Release|x86.ActiveCfg = Release|Win32
 		{822E40D2-80A1-46EB-AD93-EC28C4F145ED}.Release|x86.Build.0 = Release|Win32
+<<<<<<< HEAD
 		{8A8E536E-E280-4B24-A5CD-37DB6CCFD18F}.Debug|x86.ActiveCfg = Debug|Win32
 		{8A8E536E-E280-4B24-A5CD-37DB6CCFD18F}.Debug|x86.Build.0 = Debug|Win32
 		{8A8E536E-E280-4B24-A5CD-37DB6CCFD18F}.Release|x86.ActiveCfg = Release|Win32
 		{8A8E536E-E280-4B24-A5CD-37DB6CCFD18F}.Release|x86.Build.0 = Release|Win32
+=======
+>>>>>>> 0afc8e4913a8d11101160471bd7c7a3db3eccd91
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -320,7 +330,10 @@ Global
 		{7B261D53-3599-4177-A872-44E904FFD788} = {E5B29A97-6872-426A-922D-E5C9D9668483}
 		{40A83E3A-0B83-4640-89C8-5685B9A01734} = {E5B29A97-6872-426A-922D-E5C9D9668483}
 		{822E40D2-80A1-46EB-AD93-EC28C4F145ED} = {A7E7DB91-6013-4894-B0A8-C254F53E4940}
+<<<<<<< HEAD
 		{8A8E536E-E280-4B24-A5CD-37DB6CCFD18F} = {A7E7DB91-6013-4894-B0A8-C254F53E4940}
+=======
+>>>>>>> 0afc8e4913a8d11101160471bd7c7a3db3eccd91
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CB03C0C3-8F14-4422-9973-15CA22524188}
