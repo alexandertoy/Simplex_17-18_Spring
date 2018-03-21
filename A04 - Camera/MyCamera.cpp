@@ -27,6 +27,7 @@ matrix4 Simplex::MyCamera::GetViewMatrix(void) { CalculateViewMatrix(); return m
 //get the current position of the camera
 vector3 Simplex::MyCamera::GetPosition(void) { return m_v3Position;  };
 vector3 Simplex::MyCamera::GetTarget(void) { return m_v3Target; };
+vector3 Simplex::MyCamera::GetUp(void) { return m_v3Up; };
 
 Simplex::MyCamera::MyCamera()
 {
