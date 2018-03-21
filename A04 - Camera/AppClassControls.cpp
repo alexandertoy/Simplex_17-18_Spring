@@ -72,6 +72,19 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 	default: break;
 	case sf::Keyboard::Space:
 		break;
+	case sf::Keyboard::W:
+		std::cout << "W Pressed." << std::endl;
+		//m_pCamera->SetPosition();
+		break;
+	case sf::Keyboard::A:
+		std::cout << "A Pressed." << std::endl;
+		break;
+	case sf::Keyboard::S:
+		std::cout << "S Pressed." << std::endl;
+		break;
+	case sf::Keyboard::D:
+		std::cout << "D Pressed." << std::endl;
+		break;
 	}
 	//gui
 	gui.io.KeysDown[a_event.key.code] = true;
