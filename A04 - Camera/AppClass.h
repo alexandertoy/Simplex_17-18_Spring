@@ -20,6 +20,10 @@ class Application
 	MyMeshManager* m_pMyMeshMngr = nullptr; //My Mesh Manager
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu"; //Programmer
 private:
+	//variables I added
+	vector3 m_v3MousePos = vector3(); //current mouse position
+	const float fspeed = 0.3f;
+	
 	static ImGuiObject gui; //GUI object
 
 	uint m_uRenderCallCount = 0; //count of render calls per frame

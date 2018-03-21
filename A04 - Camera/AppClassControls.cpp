@@ -11,6 +11,12 @@ void Application::ProcessMouseMovement(sf::Event a_event)
 	if(!m_pSystem->IsWindowFullscreen() && !m_pSystem->IsWindowBorderless())
 		m_v3Mouse += vector3(-8.0f, -32.0f, 0.0f);
 	gui.io.MousePos = ImVec2(m_v3Mouse.x, m_v3Mouse.y);
+
+	vector3 delta = m_v3MousePos - m_v3Mouse;
+
+	if (gui.m_bMousePressed[2]) {
+		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3((delta.x / m_pSystem->GetWindowWidth()), (delta.y / m_pSystem->GetWindowHeight()), 0.0f));
+	}
 }
 void Application::ProcessMousePressed(sf::Event a_event)
 {
@@ -27,6 +33,9 @@ void Application::ProcessMousePressed(sf::Event a_event)
 	case sf::Mouse::Button::Right:
 		gui.m_bMousePressed[2] = true;
 		m_bFPC = true;
+		//m_v3MousePos = m_v3Mouse;
+
+
 		break;
 	}
 
@@ -74,24 +83,24 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 		break;
 	case sf::Keyboard::W:
 		//std::cout << "W Pressed." << std::endl;
-		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(0.0f, 0.0f, -0.3f));
-		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(0.0f, 0.0f, -1.0f));
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(0.0f, 0.0f, -fspeed)); //move the camera along the Z axis
+		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(0.0f, 0.0f, -1.0f)); //adjust target
 		break;
 	case sf::Keyboard::A:
 		//std::cout << "A Pressed." << std::endl;
-		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(-0.3f, 0.0f, 0.0f));
-		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(-0.3f, 0.0f, 0.0f));
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(-fspeed, 0.0f, 0.0f));
+		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(-fspeed, 0.0f, 0.0f));
 		//m_pCamera->SetUp(m_pCamera->GetUp() + vector3(0.0f, 0.3f, 0.0f));
 		break;
 	case sf::Keyboard::S:
 		//std::cout << "S Pressed." << std::endl;
-		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(0.0f, 0.0f, 0.3f));
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(0.0f, 0.0f, fspeed));
 		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(0.0f, 0.0f, -1.0f));
 		break;
 	case sf::Keyboard::D:
 		//std::cout << "D Pressed." << std::endl;
-		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(0.3f, 0.0f, 0.0f));
-		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(0.3f, 0.0f, 0.0f));
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(fspeed, 0.0f, 0.0f));
+		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(fspeed, 0.0f, 0.0f));
 		break;
 	}
 	//gui
