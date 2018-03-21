@@ -73,14 +73,19 @@ void Application::ProcessKeyPressed(sf::Event a_event)
 	case sf::Keyboard::Space:
 		break;
 	case sf::Keyboard::W:
-		std::cout << "W Pressed." << std::endl;
-		//m_pCamera->SetPosition();
+		//std::cout << "W Pressed." << std::endl;
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(0.0f, 0.0f, -0.3f));
+		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(0.0f, 0.0f, -1.0f));
 		break;
 	case sf::Keyboard::A:
 		std::cout << "A Pressed." << std::endl;
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(-0.3f, 0.0f, 0.0f));
+		//m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(0.0f, 0.0f, -1.0f));
 		break;
 	case sf::Keyboard::S:
-		std::cout << "S Pressed." << std::endl;
+		//std::cout << "S Pressed." << std::endl;
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + vector3(0.0f, 0.0f, 0.3f));
+		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3(0.0f, 0.0f, -1.0f));
 		break;
 	case sf::Keyboard::D:
 		std::cout << "D Pressed." << std::endl;

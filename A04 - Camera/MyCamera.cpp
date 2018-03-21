@@ -24,6 +24,10 @@ matrix4 Simplex::MyCamera::GetProjectionMatrix(void) { return m_m4Projection; }
 
 matrix4 Simplex::MyCamera::GetViewMatrix(void) { CalculateViewMatrix(); return m_m4View; }
 
+//get the current position of the camera
+vector3 Simplex::MyCamera::GetPosition(void) { return m_v3Position;  };
+vector3 Simplex::MyCamera::GetTarget(void) { return m_v3Target; };
+
 Simplex::MyCamera::MyCamera()
 {
 	Init(); //Init the object with default values
