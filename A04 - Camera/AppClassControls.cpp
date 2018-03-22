@@ -400,13 +400,15 @@ void Application::CameraRotation(float a_fSpeed)
 	//if the right mouse button is down
 	vector3 m_v3Forward, m_v3NewForward; //forward vectors for rotation
 	glm::quat quatRotation; //a quaternion for rotation
+	vector3 newTarget = m_pCamera->GetTarget();
 
 	if (gui.m_bMousePressed[2]) {
-		//This is identical to attempt 1 below. It admittedly doesn't work, it rolls instead of turning.
-		//rotating up and down kinda works though.
-		m_pCamera->SetTarget(glm::rotateY(m_pCamera->GetTarget(), fAngleY)); //rotate on the Y axis
-		m_pCamera->SetTarget(glm::rotateX(m_pCamera->GetTarget(), fAngleX)); //rotate on the X axis
-		
+		//Kinda stops working if you move with WASD first
+		newTarget.x = (glm::rotateY(m_pCamera->GetTarget(), -fAngleY).x);
+		newTarget.y = (glm::rotateX(m_pCamera->GetTarget(), fAngleX).y);
+		m_pCamera->SetTarget(newTarget);
+		m_pCamera->SetUp(AXIS_Y);
+
 		/* None of these worked
 		//attempt 1
 		m_pCamera->SetTarget(glm::rotateY(m_pCamera->GetTarget(), fAngleY)); //rotate on the Y axis
@@ -428,13 +430,18 @@ void Application::CameraRotation(float a_fSpeed)
 		
 		
 		glm::quat deltaRotation = glm::quat(glm::vec3(fAngleX, fAngleY, 0));
-		glm::quat currentRotation = glm::rotation(glm::normalize(m_pCamera->GetTarget() - m_pCamera->GetPosition());
-		glm::quat newRotation = currentRotation * deltaRotation;
+		glm::quat currentRotation = glm::toQuat(m_pCamera->GetViewMatrix());
+		glm::quat newRotation = deltaRotation * currentRotation;
 
 		glm::vec3 newForward = glm::rotate(newRotation, AXIS_Z);
 		m_pCamera->SetTarget(newForward + m_pCamera->GetPosition());
+		
+		//attempt 4
+		newTarget.x = (glm::rotateY(m_pCamera->GetTarget(), fAngleY).x);
+		newTarget.y = (glm::rotateX(m_pCamera->GetTarget(), fAngleX).y);
+		m_pCamera->SetUp(m_pCamera->GetUp() + vector3(0.0f, 1.0f, 0.0f));
 		*/
-
+		
 	}
 }
 //Keyboard
