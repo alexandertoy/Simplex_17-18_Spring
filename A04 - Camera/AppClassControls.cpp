@@ -1,4 +1,5 @@
 #include "AppClass.h"
+
 using namespace Simplex;
 //Mouse
 void Application::ProcessMouseMovement(sf::Event a_event)
@@ -30,8 +31,6 @@ void Application::ProcessMousePressed(sf::Event a_event)
 	case sf::Mouse::Button::Right:
 		gui.m_bMousePressed[2] = true;
 		m_bFPC = true;
-		//m_v3MousePos = m_v3Mouse;
-
 
 		break;
 	}
@@ -399,19 +398,26 @@ void Application::CameraRotation(float a_fSpeed)
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 
 	//if the right mouse button is down
-	glm::quat RotationX, RotationY, RotationZ;
-	vector3 m_v3Forward, m_v3NewForward;
+	vector3 m_v3Forward, m_v3NewForward; //forward vectors for rotation
+	glm::quat quatRotation; //a quaternion for rotation
 
 	if (gui.m_bMousePressed[2]) {
-		/* None of these worked
+		//This is identical to attempt 1 below. It admittedly doesn't work, it rolls instead of turning.
+		//rotating up and down kinda works though.
 		m_pCamera->SetTarget(glm::rotateY(m_pCamera->GetTarget(), fAngleY)); //rotate on the Y axis
 		m_pCamera->SetTarget(glm::rotateX(m_pCamera->GetTarget(), fAngleX)); //rotate on the X axis
 		
+		/* None of these worked
+		//attempt 1
+		m_pCamera->SetTarget(glm::rotateY(m_pCamera->GetTarget(), fAngleY)); //rotate on the Y axis
+		m_pCamera->SetTarget(glm::rotateX(m_pCamera->GetTarget(), fAngleX)); //rotate on the X axis
+		
+		//attempt 2
 		forwardVec = glm::normalize(m_pCamera->GetTarget() - m_pCamera->GetPosition());
 		forwardVec = glm::rotateX(glm::rotateY(forwardVec, fAngleY), fAngleX);
 		m_pCamera->SetTarget(m_pCamera->GetPosition() + forwardVec);
-		*/
-
+		
+		//attempt3
 		RotationX = glm::quat(fAngleX, AXIS_X);
 		RotationY = glm::quat(fAngleY, AXIS_Y);
 		RotationZ = RotationX * RotationY;
@@ -419,6 +425,16 @@ void Application::CameraRotation(float a_fSpeed)
 		m_v3Forward = m_pCamera->GetTarget() - m_pCamera->GetPosition();
 		m_v3NewForward = glm::rotate(RotationZ, m_v3Forward);
 		m_pCamera->SetTarget(m_v3NewForward + m_pCamera->GetPosition());
+		
+		
+		glm::quat deltaRotation = glm::quat(glm::vec3(fAngleX, fAngleY, 0));
+		glm::quat currentRotation = glm::rotation(glm::normalize(m_pCamera->GetTarget() - m_pCamera->GetPosition());
+		glm::quat newRotation = currentRotation * deltaRotation;
+
+		glm::vec3 newForward = glm::rotate(newRotation, AXIS_Z);
+		m_pCamera->SetTarget(newForward + m_pCamera->GetPosition());
+		*/
+
 	}
 }
 //Keyboard
