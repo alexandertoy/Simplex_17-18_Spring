@@ -14,9 +14,6 @@ void Application::ProcessMouseMovement(sf::Event a_event)
 
 	vector3 delta = m_v3MousePos - m_v3Mouse;
 
-	if (gui.m_bMousePressed[2]) {
-		m_pCamera->SetTarget(m_pCamera->GetTarget() + vector3((delta.x / m_pSystem->GetWindowWidth()), (delta.y / m_pSystem->GetWindowHeight()), 0.0f));
-	}
 }
 void Application::ProcessMousePressed(sf::Event a_event)
 {
@@ -400,6 +397,29 @@ void Application::CameraRotation(float a_fSpeed)
 	}
 	//Change the Yaw and the Pitch of the camera
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
+
+	//if the right mouse button is down
+	glm::quat RotationX, RotationY, RotationZ;
+	vector3 m_v3Forward, m_v3NewForward;
+
+	if (gui.m_bMousePressed[2]) {
+		/* None of these worked
+		m_pCamera->SetTarget(glm::rotateY(m_pCamera->GetTarget(), fAngleY)); //rotate on the Y axis
+		m_pCamera->SetTarget(glm::rotateX(m_pCamera->GetTarget(), fAngleX)); //rotate on the X axis
+		
+		forwardVec = glm::normalize(m_pCamera->GetTarget() - m_pCamera->GetPosition());
+		forwardVec = glm::rotateX(glm::rotateY(forwardVec, fAngleY), fAngleX);
+		m_pCamera->SetTarget(m_pCamera->GetPosition() + forwardVec);
+		*/
+
+		RotationX = glm::quat(fAngleX, AXIS_X);
+		RotationY = glm::quat(fAngleY, AXIS_Y);
+		RotationZ = RotationX * RotationY;
+
+		m_v3Forward = m_pCamera->GetTarget() - m_pCamera->GetPosition();
+		m_v3NewForward = glm::rotate(RotationZ, m_v3Forward);
+		m_pCamera->SetTarget(m_v3NewForward + m_pCamera->GetPosition());
+	}
 }
 //Keyboard
 void Application::ProcessKeyboard(void)
