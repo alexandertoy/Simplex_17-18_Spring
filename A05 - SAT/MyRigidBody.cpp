@@ -274,7 +274,7 @@ void MyRigidBody::AddToRenderList(void)
 	}
 }
 
-uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
+uint MyRigidBody::SAT(MyRigidBody* const other)
 {
 	/*
 	Your code goes here instead of this comment;
@@ -287,92 +287,92 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
 
-	float ra, rb;
-	matrix3 R, AbsR;
+	float radiusUs, radiusThem;
+	matrix3 RotationThemToUs, AbsRotationThemToUs;
 
-	vector3 a_u[3], b_u[3];
-	a_u[0] = vector3(m_m4ToWorld * vector4(AXIS_X, 1.0f));
-	a_u[1] = vector3(m_m4ToWorld * vector4(AXIS_Y, 1.0f));
-	a_u[2] = vector3(m_m4ToWorld * vector4(AXIS_Z, 1.0f));
+	vector3 OurLocalAxis[3], TheirLocalAxis[3];
+	OurLocalAxis[0] = matrix3(m_m4ToWorld) * AXIS_X;
+	OurLocalAxis[1] = matrix3(m_m4ToWorld) * AXIS_Y;
+	OurLocalAxis[2] = matrix3(m_m4ToWorld) * AXIS_Z;
 
-	b_u[0] = vector3(a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
-	b_u[1] = vector3(a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
-	b_u[2] = vector3(a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
+	TheirLocalAxis[0] = matrix3(other->m_m4ToWorld) * AXIS_X;
+	TheirLocalAxis[1] = matrix3(other->m_m4ToWorld) * AXIS_Y;
+	TheirLocalAxis[2] = matrix3(other->m_m4ToWorld) * AXIS_Z;
 
 	//compute rotation matrix expressing b in a's coordinate frame
 	for (int i = 0; i < 3; i++)
 		for (int j = 0; j < 3; j++)
-			R[i][j] = glm::dot(a_u[i], b_u[j]);
+			RotationThemToUs[i][j] = glm::dot(OurLocalAxis[i], TheirLocalAxis[j]);
 
 	//compute translation vector t
-	vector3 t = a_pOther->GetCenterGlobal() - this->GetCenterGlobal();
-	t = vector3(glm::dot(t, a_u[0]), glm::dot(t, a_u[1]), glm::dot(t, a_u[2]));
+	vector3 TranslateUsToThem = other->GetCenterGlobal() - this->GetCenterGlobal();
+	TranslateUsToThem = vector3(glm::dot(TranslateUsToThem, OurLocalAxis[0]), glm::dot(TranslateUsToThem, OurLocalAxis[1]), glm::dot(TranslateUsToThem, OurLocalAxis[2]));
 
 	//compute common subexpressions, add in an epsilon term to
 	//counteract artihmetic errors when two edges are parallel and
 	//their cross product is (near) null
 	for (int i = 0; i < 3; i++)
 		for (int j = 0; j < 3; j++)
-			AbsR[i][j] = abs(R[i][j] + glm::epsilon<float>());
+			AbsRotationThemToUs[i][j] = abs(RotationThemToUs[i][j]) + glm::epsilon<float>();
 
 	//test axes L = a0, L = A1, L = A2
 	for (int i = 0; i < 3; i++) {
-		ra = m_v3HalfWidth[i];
-		rb = a_pOther->m_v3HalfWidth[0] * AbsR[i][0] + a_pOther->m_v3HalfWidth[1] * AbsR[i][1] + a_pOther->m_v3HalfWidth[2] * AbsR[i][2];
-		if (abs(t[i]) > ra + rb) return (eSATResults::SAT_AX + i);
+		radiusUs = m_v3HalfWidth[i];
+		radiusThem = other->m_v3HalfWidth[0] * AbsRotationThemToUs[i][0] + other->m_v3HalfWidth[1] * AbsRotationThemToUs[i][1] + other->m_v3HalfWidth[2] * AbsRotationThemToUs[i][2];
+		if (abs(TranslateUsToThem[i]) > radiusUs + radiusThem) return (eSATResults::SAT_AX + i);
 	}
 
 	//test axes L = B0, L = B1, L = B2
 	for (int i = 0; i < 3; i++) {
-		ra = m_v3HalfWidth[0] * AbsR[0][i] + m_v3HalfWidth[1] * AbsR[1][i] + m_v3HalfWidth[2] * AbsR[2][i];
-		rb = a_pOther->m_v3HalfWidth[i];
-		if (abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) return (eSATResults::SAT_BX + i);
+		radiusUs = m_v3HalfWidth[0] * AbsRotationThemToUs[0][i] + m_v3HalfWidth[1] * AbsRotationThemToUs[1][i] + m_v3HalfWidth[2] * AbsRotationThemToUs[2][i];
+		radiusThem = other->m_v3HalfWidth[i];
+		if (abs(TranslateUsToThem[0] * RotationThemToUs[0][i] + TranslateUsToThem[1] * RotationThemToUs[1][i] + TranslateUsToThem[2] * RotationThemToUs[2][i]) > radiusUs + radiusThem) return (eSATResults::SAT_BX + i);
 	}
 
 	// Test axis L = A0 x B0
-	ra = m_v3HalfWidth[1] * AbsR[2][0] + m_v3HalfWidth[2] * AbsR[1][0];
-	rb = a_pOther->m_v3HalfWidth[1] * AbsR[0][2] + a_pOther->m_v3HalfWidth[2] * AbsR[0][1];
-	if (abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return eSATResults::SAT_AXxBX;
+	radiusUs = m_v3HalfWidth[1] * AbsRotationThemToUs[2][0] + m_v3HalfWidth[2] * AbsRotationThemToUs[1][0];
+	radiusThem = other->m_v3HalfWidth[1] * AbsRotationThemToUs[0][2] + other->m_v3HalfWidth[2] * AbsRotationThemToUs[0][1];
+	if (abs(TranslateUsToThem[2] * RotationThemToUs[1][0] - TranslateUsToThem[1] * RotationThemToUs[2][0]) > radiusUs + radiusThem) return eSATResults::SAT_AXxBX;
 
 	// Test axis L = A0 x B1
-	ra = m_v3HalfWidth[1] * AbsR[2][1] + m_v3HalfWidth[2] * AbsR[1][1];
-	rb = a_pOther->m_v3HalfWidth[0] * AbsR[0][2] + a_pOther->m_v3HalfWidth[2] * AbsR[0][0];
-	if (abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return eSATResults::SAT_AXxBY;
+	radiusUs = m_v3HalfWidth[1] * AbsRotationThemToUs[2][1] + m_v3HalfWidth[2] * AbsRotationThemToUs[1][1];
+	radiusThem = other->m_v3HalfWidth[0] * AbsRotationThemToUs[0][2] + other->m_v3HalfWidth[2] * AbsRotationThemToUs[0][0];
+	if (abs(TranslateUsToThem[2] * RotationThemToUs[1][1] - TranslateUsToThem[1] * RotationThemToUs[2][1]) > radiusUs + radiusThem) return eSATResults::SAT_AXxBY;
 
 	// Test axis L = A0 x B2
-	ra = m_v3HalfWidth[1] * AbsR[2][2] + m_v3HalfWidth[2] * AbsR[1][2];
-	rb = a_pOther->m_v3HalfWidth[0] * AbsR[0][1] + a_pOther->m_v3HalfWidth[1] * AbsR[0][0];
-	if (abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return eSATResults::SAT_AXxBZ;
+	radiusUs = m_v3HalfWidth[1] * AbsRotationThemToUs[2][2] + m_v3HalfWidth[2] * AbsRotationThemToUs[1][2];
+	radiusThem = other->m_v3HalfWidth[0] * AbsRotationThemToUs[0][1] + other->m_v3HalfWidth[1] * AbsRotationThemToUs[0][0];
+	if (abs(TranslateUsToThem[2] * RotationThemToUs[1][2] - TranslateUsToThem[1] * RotationThemToUs[2][2]) > radiusUs + radiusThem) return eSATResults::SAT_AXxBZ;
 
 	// Test axis L = A1 x B0
-	ra = m_v3HalfWidth[0] * AbsR[2][0] + m_v3HalfWidth[2] * AbsR[0][0];
-	rb = a_pOther->m_v3HalfWidth[1] * AbsR[1][2] + a_pOther->m_v3HalfWidth[2] * AbsR[1][1];
-	if (abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return eSATResults::SAT_AYxBX;
+	radiusUs = m_v3HalfWidth[0] * AbsRotationThemToUs[2][0] + m_v3HalfWidth[2] * AbsRotationThemToUs[0][0];
+	radiusThem = other->m_v3HalfWidth[1] * AbsRotationThemToUs[1][2] + other->m_v3HalfWidth[2] * AbsRotationThemToUs[1][1];
+	if (abs(TranslateUsToThem[0] * RotationThemToUs[2][0] - TranslateUsToThem[2] * RotationThemToUs[0][0]) > radiusUs + radiusThem) return eSATResults::SAT_AYxBX;
 
 	// Test axis L = A1 x B1
-	ra = m_v3HalfWidth[0] * AbsR[2][1] + m_v3HalfWidth[2] * AbsR[0][1];
-	rb = a_pOther->m_v3HalfWidth[0] * AbsR[1][2] + a_pOther->m_v3HalfWidth[2] * AbsR[1][0];
-	if (abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return eSATResults::SAT_AYxBY;
+	radiusUs = m_v3HalfWidth[0] * AbsRotationThemToUs[2][1] + m_v3HalfWidth[2] * AbsRotationThemToUs[0][1];
+	radiusThem = other->m_v3HalfWidth[0] * AbsRotationThemToUs[1][2] + other->m_v3HalfWidth[2] * AbsRotationThemToUs[1][0];
+	if (abs(TranslateUsToThem[0] * RotationThemToUs[2][1] - TranslateUsToThem[2] * RotationThemToUs[0][1]) > radiusUs + radiusThem) return eSATResults::SAT_AYxBY;
 
 	// Test axis L = A1 x B2
-	ra = m_v3HalfWidth[0] * AbsR[2][2] + m_v3HalfWidth[2] * AbsR[0][2];
-	rb = a_pOther->m_v3HalfWidth[0] * AbsR[1][1] + a_pOther->m_v3HalfWidth[1] * AbsR[1][0];
-	if (abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return eSATResults::SAT_AYxBZ;
+	radiusUs = m_v3HalfWidth[0] * AbsRotationThemToUs[2][2] + m_v3HalfWidth[2] * AbsRotationThemToUs[0][2];
+	radiusThem = other->m_v3HalfWidth[0] * AbsRotationThemToUs[1][1] + other->m_v3HalfWidth[1] * AbsRotationThemToUs[1][0];
+	if (abs(TranslateUsToThem[0] * RotationThemToUs[2][2] - TranslateUsToThem[2] * RotationThemToUs[0][2]) > radiusUs + radiusThem) return eSATResults::SAT_AYxBZ;
 
 	// Test axis L = A2 x B0
-	ra = m_v3HalfWidth[0] * AbsR[1][0] + m_v3HalfWidth[1] * AbsR[0][0];
-	rb = a_pOther->m_v3HalfWidth[1] * AbsR[2][2] + a_pOther->m_v3HalfWidth[2] * AbsR[2][1];
-	if (abs(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) return eSATResults::SAT_AZxBX;
+	radiusUs = m_v3HalfWidth[0] * AbsRotationThemToUs[1][0] + m_v3HalfWidth[1] * AbsRotationThemToUs[0][0];
+	radiusThem = other->m_v3HalfWidth[1] * AbsRotationThemToUs[2][2] + other->m_v3HalfWidth[2] * AbsRotationThemToUs[2][1];
+	if (abs(TranslateUsToThem[1] * RotationThemToUs[0][0] - TranslateUsToThem[0] * RotationThemToUs[1][0]) > radiusUs + radiusThem) return eSATResults::SAT_AZxBX;
 
 	// Test axis L = A2 x B1
-	ra = m_v3HalfWidth[0] * AbsR[1][1] + m_v3HalfWidth[1] * AbsR[0][1];
-	rb = a_pOther->m_v3HalfWidth[0] * AbsR[2][2] + a_pOther->m_v3HalfWidth[2] * AbsR[2][0];
-	if (abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return eSATResults::SAT_AZxBY;
+	radiusUs = m_v3HalfWidth[0] * AbsRotationThemToUs[1][1] + m_v3HalfWidth[1] * AbsRotationThemToUs[0][1];
+	radiusThem = other->m_v3HalfWidth[0] * AbsRotationThemToUs[2][2] + other->m_v3HalfWidth[2] * AbsRotationThemToUs[2][0];
+	if (abs(TranslateUsToThem[1] * RotationThemToUs[0][1] - TranslateUsToThem[0] * RotationThemToUs[1][1]) > radiusUs + radiusThem) return eSATResults::SAT_AZxBY;
 
 	// Test axis L = A2 x B2
-	ra = m_v3HalfWidth[0] * AbsR[1][2] + m_v3HalfWidth[1] * AbsR[0][2];
-	rb = a_pOther->m_v3HalfWidth[0] * AbsR[2][1] + a_pOther->m_v3HalfWidth[1] * AbsR[2][0];
-	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return eSATResults::SAT_AZxBZ;
+	radiusUs = m_v3HalfWidth[0] * AbsRotationThemToUs[1][2] + m_v3HalfWidth[1] * AbsRotationThemToUs[0][2];
+	radiusThem = other->m_v3HalfWidth[0] * AbsRotationThemToUs[2][1] + other->m_v3HalfWidth[1] * AbsRotationThemToUs[2][0];
+	if (abs(TranslateUsToThem[1] * RotationThemToUs[0][2] - TranslateUsToThem[0] * RotationThemToUs[1][2]) > radiusUs + radiusThem) return eSATResults::SAT_AZxBZ;
 
 	//there is no axis test that separates this two objects
 	return eSATResults::SAT_NONE;
